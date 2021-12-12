@@ -8,7 +8,10 @@
 //
 //     Thanks for viewing!
 //
-//
+
+//DO NOT USE VISUAL STUDIO TO COMPILE!! USE COMPILE.VBS!!
+
+#define BUILDTYPE_WINDOWS
 
 using System;
 using System.IO;
@@ -21,6 +24,7 @@ using System.Xml;
 
 namespace GOOMBAServer
 {
+
     public static class ExtensionClass
     {
         // Extension method to append the element
@@ -48,7 +52,10 @@ namespace GOOMBAServer
         public static string database;
         public static string uid;
         public static string password;
-
+        public static string[] StringSplit(string StringToSplit, string Delimitator)
+        {
+            return StringToSplit.Split(new[] { Delimitator }, StringSplitOptions.None);
+        }
         //Initialize values
         public static void InitializeSQL(string host, string db, string user, string pass)
         {
@@ -169,10 +176,13 @@ namespace GOOMBAServer
         }
 
 
-        static void runGoombaCode(HttpListenerRequest req, string file = "")
+        public static void runGoombaCode(HttpListenerRequest req, string file = "", bool isFunc = false)
         {
             List<string> strVars = new List<string>();
             List<string> strVars2 = new List<string>();
+            List<string> functions = new List<string>();
+            List<int> functionLengths = new List<int>();
+            List<string> functionCodes = new List<string>();
             var isIndex = false;
             if (req.Url.AbsolutePath == "" || req.Url.AbsolutePath == "/")
             {
@@ -180,8 +190,10 @@ namespace GOOMBAServer
             }
             var i = 0;
             var goombaMode = false;
-            pageData = "";
-
+            if (!isFunc)
+            {
+                pageData = "";
+            }
             StreamReader streamReader = new StreamReader(file);
             var toread = streamReader.ReadToEnd();
             streamReader.Close();
@@ -235,6 +247,69 @@ namespace GOOMBAServer
                         else if (line.StartsWith("THINK"))
                         {
 
+                        }
+                        // Function support
+                        else if (line.StartsWith("FUNCTION:"))
+                        {
+                            if (!isFunc)
+                            {
+                                if (commandline.Length < 2)
+                                {
+                                    File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 2 or more arguments after FUNCTION at line " + i + ". Code will not continue.");
+                                    pageData = "Goomba says: Expecting 2 or more arguments after FUNCTION at line " + i + ". Code will not continue.";
+                                    return;
+                                }
+                                functions.Add(commandline[1]);
+                                var txt = "";
+                                for (int j = 2, loopTo = commandline.Length - 1; j <= loopTo; j++)
+                                    txt += commandline[j] + " ";
+                                var c = StringSplit(txt, ";;");
+                                functionLengths.Add(c.Length);
+                                functionCodes.AddRange(c);
+                            } else
+                            {
+                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: A function in a function at function code " + i + ".");
+                            }
+                        }
+                        // Function support Pt.2 (RUNFUN runs a function, while running with fun!)
+                        else if (line.StartsWith("RUNFUN:"))
+                        {
+                            if (!isFunc)
+                            {
+                                if (commandline.Length != 2)
+                                {
+                                    File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 1 or more argument after RUNFUN at line " + i + ". Code will not continue.");
+                                    pageData = "Goomba says: Expecting 1 argument after RUNFUN at line " + i + ". Code will not continue.";
+                                    return;
+                                }
+                                if (functions.Contains(commandline[1]))
+                                {
+                                    int ok = functions.FindIndex(commandline[1].StartsWith);
+                                    int len = functionLengths[ok];
+                                    string codes = "";
+                                    foreach (string s in functionCodes)
+                                    {
+
+                                        if (functionCodes.FindIndex(s.StartsWith) < len)
+                                        {
+                                            if(functionCodes.FindIndex(s.StartsWith)!=len-1){codes+=s+"\n";}else{codes+=s;}
+                                        }
+                                    }
+                                    int rn = new Random().Next(1, 999999999);
+                                    File.WriteAllText(Environment.CurrentDirectory + @"\www\" + rn + ".goomba", "->GOOMBATIME<-\n" + codes + "->STOPITGOOMBA<-");
+                                    runGoombaCode(req, Environment.CurrentDirectory + @"\www\" + rn + ".goomba", true);
+                                }
+                                else
+                                {
+                                    File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "Goomba says: RUNFUN could not find function " + commandline[1] + " at line " + i + ". Code will not continue.");
+                                    pageData = "Goomba says: RUNFUN could not find function " + commandline[1] + " at line " + i + ". Code will not continue.";
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: A function in a function at function code " + i + ".");
+                            }
                         }
                         // Create variable
                         else if (commandline[0] == "CREATEHTMLVAR:")
@@ -523,6 +598,7 @@ namespace GOOMBAServer
                             {
                                 StreamReader sr = new StreamReader(file);
                                 pageData = sr.ReadToEnd();
+                                sr.Close();
                             }
                         }
                         goto foundfile;
@@ -568,7 +644,21 @@ namespace GOOMBAServer
 
         public static void Main(string[] args)
         {
+#if BUILDTYPE_WINDOWS
+            if (!Directory.Exists(Environment.CurrentDirectory + "\\www\\"))
+            {
+                Directory.CreateDirectory(Environment.CurrentDirectory + "\\www\\");
+            }
+#else
+            if (!Directory.Exists(Environment.CurrentDirectory + "/www"))
+            {
+                Directory.CreateDirectory(Environment.CurrentDirectory + "/www");
+            }
+#endif
+            url = File.ReadAllText(Environment.CurrentDirectory + "/GOOMBA.cfg");
+#if BUILDTYPE_WINDOWS
             url = File.ReadAllText(Environment.CurrentDirectory + "\\GOOMBA.cfg");
+#endif
             // Create a Http server and start listening for incoming connections
             listener = new HttpListener();
             listener.Prefixes.Add(url);
@@ -584,3 +674,17 @@ namespace GOOMBAServer
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
