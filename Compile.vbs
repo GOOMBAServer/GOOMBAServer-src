@@ -26,7 +26,6 @@ Set objFile = objFSO.OpenTextFile("Module1.cs", ForWriting)
 objFile.WriteLine strNewText
 
 objFile.Close
-MsgBox ("%comspec% /K cd """ + WshShell.CurrentDirectory + """")
 WshShell.Run "%comspec% /K dotnet publish GOOMBAServer.sln --runtime ubuntu.16.04-x64", 1, True
 else
 MsgBox("ERROR while compiling")
