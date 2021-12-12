@@ -1,0 +1,84 @@
+<html><head>
+    <link rel="stylesheet" href="style/style.css">
+    <title>GOOMBAServerDocs - Main</title>
+</head>
+<body>
+    <script>
+        window.onload = () => {
+            var els = document.getElementsByClassName("navElem");
+
+            for(el of els) {
+                addNavClick(el, el.getAttribute("data-goto"));
+            }
+        }
+
+        function addNavClick(el, to) {
+            el.addEventListener("click", (ev) => {
+                window.history.pushState({}, to, '#' + to);
+
+                document.getElementById(to).scrollIntoView({
+                    "behavior": "smooth"
+                });
+            });
+        }
+    </script>
+
+    <div class="nav" style="position: fixed; top: 0; left: 0;">
+        <div class="navElem" data-goto="goomba"> Docs</div>
+        <div class="navElem" data-goto="use">Use GOOMBA</div>
+        <div class="navElem" data-goto="comments">Comments</div>
+        <div class="navElem" data-goto="ref">Core Reference</div>
+    </div>
+    <div class="content" style="margin-left: 16vw;">
+        <h1 id="goomba">GOOMBAServer documentation</h1>
+        <h3>GOOMBAServer is a programming language for websites.</h3>
+        GOOMBAServer is SERVER SIDE! Like asp, PHP, and stuff. If you want to use GOOMBAServer you can use it.<br>
+        Even though this language might not look as easy than other languages, it is still quite easy to learn.<br><br>
+        This documentation may be inconsistent, but methods and functions are meant to be understood as the same.
+        <br><br>
+        <h2 id="use">Use GOOMBAServer</h2>
+       To use GOOMBAServer, you need to download the server. There is a Windows version and a Linux (Ubuntu) version<br>
+        After you've done that, you can start creating your first index.goomba file in the /www folder.
+        <br><code class="fullWidth">
+            <span class="sh html-tag">&lt;head&gt;<br></span>
+			<span class="sh html-tag">&lt;title&gt;<br></span><span>My first GOOMBAServer project!<br></span><span class="sh html-tag">&lt;/title&gt;<br></span>
+            <span class="sh html-tag">&lt;/head&gt;</span>
+        </code><br><br>
+        After doing that, you can add a server script anywhere on your site. To initiate GOOMBAServer, type:
+        <br><code class="fullWidth">
+            <span class="sh js-string">-&gt;GOOMBATIME&lt;-</span>
+        </code><br><br>
+        To execute script, do this:
+        <br><code class="fullWidth">
+            <span class="sh js-string">-&gt;GOOMBATIME&lt;-<br></span>
+			<span>Script here!<br></span>
+			<span class="sh js-string">-&gt;STOPITGOOMBA&lt;-</span>
+        </code><br><br>
+        You can also add HTML code, just don't do it inside the GOOMBA tags. (
+            <span class="sh js-string">-&gt;GOOMBATIME&lt;-</span> is the start of a GOOMBA script,
+			<span class="sh js-string">-&gt;STOPITGOOMBA&lt;-</span> is the end.)
+        
+        <br><h2 id="comments">Comments</h2>
+        GOOMBAServer ofcourse supports comments. To create a comment, start the line with <code>THINK</code> and it will be ignored. You cannot create multi-line comments.<br><br>
+
+        <br><h2 id="ref">Core reference</h2>
+        <ul>
+            <li><code>SPELLWORD: [word]</code>: Writes the specified word on the page.</li>
+            <li><code>SPELLSENTENCE: [string]</code>: Writes the specified string on the page.</li>
+            <li><code>WRITEPAPER: [filename] [string]</code>: Opens/creates the file, and writes the specified string to the file.</li>
+            <li><code>APPENDTOPAPER: [filename] [string]</code>: Opens/creates the file, and appends the specified string to the file.</li>
+            <li><code>READPAPER: [filename]</code>: Opens the file and reads the files content and displays it on the screen, unless used in another way.</li>
+            <li><code>USEADVANCEDTEXT: </code>: This is an extension mainly for READPAPER, adding this before the filename will change \n to a new line.</li>
+			<li><code>CONNECT: [host] [database name] [username] [password]</code>: Connect to a MySQL database.</li>
+			<li><code>QUERY: "[query]" </code>: Do something with the database.</li>
+<li><code>CREATEHTMLVAR: [variablename] [elementid]</code>: Reads the element by id, then stores it into a variable, similar to JS's document.getElementById</li>
+<li><code>SPELLVAR: [variablename]</code>: Write the variable on the page.</li>
+        </ul>
+<h2>SAMPLE CODE:</h2>
+<a href="https://www.taart.site/imusings-dl/sample.txt">CLICK FOR SAMPLE</a>
+		<br>
+		GOOMBAServer (c) 2021 The GOOMBAServer Project, by Imusing / Ava#7777.
+		<br>
+		Original documentation was for PoopScript by GoldenretriverYT on GitHub.
+    </div>
+</body></html>
