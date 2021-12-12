@@ -8,7 +8,7 @@ If you are using an unchanged GOOMBA.cfg file, just run GOOMBAServer.exe and go 
 # Compiling GOOMBAServer
 You need the MySQL.Data NuGet package installed first.
 Go to Tools > NuGet Package Manager > Manage NuGet packages for solution
-Then just press the compile button on Visual Studio and you're ready to go!
+Then close Visual Studio and open `compile.vbs`
 
 # Can I use this source?
 Yes, you are allowed to use this source if you follow the license.
