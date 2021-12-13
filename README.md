@@ -1,5 +1,5 @@
 # GOOMBAServer
-GOOMBAServer - A Server-Side website hosting program.
+GOOMBAServer - A Server-Side programming language for websites!
 
 GOOMBAServer is based on PHP, NodeJS, and ASP.NET (Easier explanation: server side languages for websites).
 Using GOOMBAServer is free for everyone, But you should have some computer skills.
