@@ -17,7 +17,7 @@ objFile.Close
 WshShell.Run "%comspec% /K dotnet publish GOOMBAServer.sln --runtime win-x86", 1, True
 elseif fInput = "LINUX" then
 Set objFSO = CreateObject("Scripting.FileSystemObject")
-Set objFile = objFSO.OpenTextFile("Module1.cs",, ForReading)
+Set objFile = objFSO.OpenTextFile("Module1.cs", ForReading)
 
 strText = objFile.ReadAll
 objFile.Close
