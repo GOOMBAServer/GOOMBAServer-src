@@ -9,9 +9,8 @@
 //     Thanks for viewing!
 //
 
-//DO NOT USE VISUAL STUDIO TO COMPILE!! USE COMPILE.VBS!!
-
 #define BUILDTYPE_WINDOWS
+
 using System;
 using System.IO;
 using System.Text;
