@@ -188,7 +188,6 @@ namespace GOOMBAServer
         {
             List<List<string>> arrays = new List<List<string>>();
             List<string> arrays2 = new List<string>();
-            List<int> arrays3 = new List<int>();
             List<string> strVars = new List<string>();
             List<string> strVars2 = new List<string>();
             List<string> functions = new List<string>();
