@@ -11,9 +11,29 @@ It has been tested on:
 - Lubuntu 20.04.3                    [SUCCESS]
 
 # Compiling GOOMBAServer
+Compiling GOOMBAServer is easy!
+
 You need the MySQL.Data NuGet package installed first.
 Go to Tools > NuGet Package Manager > Manage NuGet packages for solution.
 Then close Visual Studio, and open `Compile.vbs`
+
+If you get an error when compiling, you can create an issue.
+
+# Sample Codes
+Database Sample
+`THINK Connect to the DB (Cannot contain spaces, currently)
+CONNECT: host db user pass
+THINK Insert something.
+QUERY: "INSERT INTO Mytable VALUES ('Test 12312');"
+THINK Select query.
+QUERY: "SELECT * FROM Mytable;"
+THINK Create an array of the query.
+ARRAYADD: MyCoolArray
+THINK Show the value from MyCoolArray at index 0 on the screen
+SPELLARRAY: MyCoolArray 0`
+Print text Sample
+`THINK Print something!
+SPELLSENTENCE: Hey, earth!`
 
 # Can I use this source?
 Yes, you are allowed to use this source if you follow the license.
