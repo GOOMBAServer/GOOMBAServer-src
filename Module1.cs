@@ -49,6 +49,7 @@ namespace GOOMBAServer
         public static string server;
         public static string database;
         public static string uid;
+        public static List<string> vs1 = new List<string>();
         public static string password;
         public static string[] StringSplit(string StringToSplit, string Delimitator)
         {
@@ -142,11 +143,13 @@ namespace GOOMBAServer
                     var ret = cmd.ExecuteReader();
                     string[] vs = { };
                     var i = -1;
+                    vs1.Clear();
                     while (ret.Read())
                     {
                         i++;
-                        vs.Append(ret[i].ToString());
+                        vs1.Add(ret["testing"].ToString());
                     }
+                    ret.Close();
                     Console.WriteLine("Done");
                     connection.Close();
                     return vs;
@@ -183,6 +186,9 @@ namespace GOOMBAServer
 
         public static void runGoombaCode(HttpListenerRequest req, string file = "", bool isFunc = false)
         {
+            List<List<string>> arrays = new List<List<string>>();
+            List<string> arrays2 = new List<string>();
+            List<int> arrays3 = new List<int>();
             List<string> strVars = new List<string>();
             List<string> strVars2 = new List<string>();
             List<string> functions = new List<string>();
@@ -256,6 +262,31 @@ namespace GOOMBAServer
                         else if (line.StartsWith("THINK"))
                         {
 
+                        }
+                        // Array things.
+                        else if (line.StartsWith("ARRAYADD:"))
+                        {
+                            if (commandline.Length != 2)
+                            {
+                                ErrorHandler("\nGoomba says: Expecting 1 argument after ARRAYADD at line " + i + ". Code will not continue.");
+                                return;
+                            }
+                            arrays.Add(vs1);
+                            arrays2.Add(commandline[1]);
+                        }
+                        else if (line.StartsWith("SPELLARRAY:"))
+                        {
+                            if (commandline.Length != 3)
+                            {
+                                ErrorHandler("\nGoomba says: Expecting 2 arguments after SPELLARRAY at line " + i + ". Code will not continue.");
+                                return;
+                            }
+                            if (arrays2.Contains(commandline[1]))
+                            {
+                              
+                                    pageData += arrays[arrays2.IndexOf(commandline[1])][Convert.ToInt32(commandline[2])];
+                                
+                            }
                         }
                         // Function support
                         else if (line.StartsWith("FUNCTION:"))
@@ -473,6 +504,12 @@ namespace GOOMBAServer
                         }
                         else if (commandline[0] == "READPAPER:")
                         {
+                            if (commandline.Length < 2)
+                            {
+                                ErrorHandler("\nGoomba says: Expecting 1 or more arguments after READPAPER, not " + commandline.Length + " at line " + i + ". Code will not continue.");
+                                pageData = "Goomba says: Expecting 1 or more arguments after READPAPER, not " + commandline.Length + " at line " + i + ". Code will not continue.";
+                                return;
+                            }
                             if (commandline[1] == "USEADVANCEDTEXT:")
                             {
                                 StreamReader streamReader2 = new StreamReader(Environment.CurrentDirectory + @"\www\" + commandline[2]);
@@ -480,19 +517,22 @@ namespace GOOMBAServer
                                 pageData += ok.Replace(@"\n", "<br />");
                                 return;
                             }
-                            else if (commandline.Length != 2)
+                            
+                            try
                             {
-                                ErrorHandler("\nGoomba says: Expecting 1 argument after READPAPER, not " + commandline.Length + " at line " + i + ". Code will not continue.");
-                                pageData = "Goomba says: Expecting 1 argument after READPAPER, not " + commandline.Length + " at line " + i + ". Code will not continue.";
-                                return;
-                            }
 #if BUILDTYPE_WINDOWS
-                            StreamReader streamReader1 = new StreamReader(Environment.CurrentDirectory + @"\www\" + commandline[1]);
+                                StreamReader streamReader1 = new StreamReader(Environment.CurrentDirectory + @"\www\" + commandline[1]);
 #else
                             StreamReader streamReader1 = new StreamReader(Environment.CurrentDirectory + @"/www/" + commandline[1]);
 #endif
-                            var txt = streamReader1.ReadToEnd();
-                            pageData += txt;
+                                var txt = streamReader1.ReadToEnd();
+                                pageData += txt;
+                            }
+                            catch
+                            {
+                                ErrorHandler("Goomba says: Undefined error");
+                            }
+
                         }
                         else if (commandline[0] == "CONNECT:")
                         {
