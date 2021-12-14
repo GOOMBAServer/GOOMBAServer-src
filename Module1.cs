@@ -1,4 +1,4 @@
-﻿//
+//
 //        GOOMBAServer
 //
 //  Created by: FreeBSoD on GitHub
@@ -12,7 +12,6 @@
 //DO NOT USE VISUAL STUDIO TO COMPILE!! USE COMPILE.VBS!!
 
 #define BUILDTYPE_WINDOWS
-
 using System;
 using System.IO;
 using System.Text;
@@ -68,7 +67,16 @@ namespace GOOMBAServer
             database + ";" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
             connection = new MySqlConnection(connectionString);
         }
+        public static void ErrorHandler(string error)
+        {
+            pageData = error;
+#if BUILDTYPE_WINDOWS
+                         File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", error);
+#else
+            File.AppendAllText(Environment.CurrentDirectory + @"/www/goomba_errors", error);
+#endif
 
+        }
         //open connection to database
         private static bool OpenConnection()
         {
@@ -83,18 +91,16 @@ namespace GOOMBAServer
                 {
                     case 0:
                         Console.WriteLine("SQL #0 Says: Cannot connect to server.");
-                        File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nSQL #0 Says: Cannot connect to server.");
-                        pageData = "SQL #0 Says: Cannot connect to server.";
+                        ErrorHandler("SQL #0 Says: Cannot connect to server.");
                         break;
 
                     case 1045:
                         Console.WriteLine("SQL #1045 Says: Invalid user name and/or password.");
-                        File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nSQL #1045 Says: Invalid user name and/or password.");
-                        pageData = "SQL #1045 Says: Invalid user name and/or password.";
+                        ErrorHandler("SQL #1045 Says: Incorrect username/password");
                         break;
                 }
                 Console.WriteLine(ex.Message);
-                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\n" + ex.Message);
+                ErrorHandler(ex.Message);
                 return false;
             }
         }
@@ -199,8 +205,12 @@ namespace GOOMBAServer
             streamReader.Close();
             if (isIndex == true)
             {
+#if BUILDTYPE_WINDOWS
+                          streamReader = new StreamReader(Environment.CurrentDirectory + @"\www\" + "index.goomba");
+#else
+                streamReader = new StreamReader(Environment.CurrentDirectory + @"/www/" + "index.goomba");
+#endif
 
-                streamReader = new StreamReader(Environment.CurrentDirectory + @"\www\" + "index.goomba");
                 toread = streamReader.ReadToEnd();
                 streamReader.Close();
             }
@@ -221,7 +231,7 @@ namespace GOOMBAServer
                             else
                             {
                                 pageData = "Goomba says: Unexpected STOPITGOOMBA at line " + i + ". Code will not continue.";
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Unexpected STOPITGOOMBA at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Unexpected STOPITGOOMBA at line " + i + ". Code will not continue.");
                                 return;
                             }
                         }
@@ -234,7 +244,7 @@ namespace GOOMBAServer
                             else
                             {
                                 pageData = "Goomba says: Unexpected GOOMBATIME at line " + i + ". Code will not continue.";
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "Goomba says: Unexpected GOOMBATIME at line " + i + ". Code will not continue.");
+                                ErrorHandler("Goomba says: Unexpected GOOMBATIME at line " + i + ". Code will not continue.");
                                 return;
                             }
                         }
@@ -255,7 +265,7 @@ namespace GOOMBAServer
                             {
                                 if (commandline.Length < 2)
                                 {
-                                    File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 2 or more arguments after FUNCTION at line " + i + ". Code will not continue.");
+                                    ErrorHandler("\nGoomba says: Expecting 2 or more arguments after FUNCTION at line " + i + ". Code will not continue.");
                                     pageData = "Goomba says: Expecting 2 or more arguments after FUNCTION at line " + i + ". Code will not continue.";
                                     return;
                                 }
@@ -268,7 +278,7 @@ namespace GOOMBAServer
                                 functionCodes.AddRange(c);
                             } else
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: A function in a function at function code " + i + ".");
+                                ErrorHandler("\nGoomba says: A function in a function at function code " + i + ".");
                             }
                         }
                         // Function support Pt.2 (RUNFUN runs a function, while running with fun!)
@@ -278,7 +288,7 @@ namespace GOOMBAServer
                             {
                                 if (commandline.Length != 2)
                                 {
-                                    File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 1 or more argument after RUNFUN at line " + i + ". Code will not continue.");
+                                    ErrorHandler("\nGoomba says: Expecting 1 or more argument after RUNFUN at line " + i + ". Code will not continue.");
                                     pageData = "Goomba says: Expecting 1 argument after RUNFUN at line " + i + ". Code will not continue.";
                                     return;
                                 }
@@ -296,19 +306,25 @@ namespace GOOMBAServer
                                         }
                                     }
                                     int rn = new Random().Next(1, 999999999);
-                                    File.WriteAllText(Environment.CurrentDirectory + @"\www\" + rn + ".goomba", "->GOOMBATIME<-\n" + codes + "->STOPITGOOMBA<-");
+#if BUILDTYPE_WINDOWS
+                          File.WriteAllText(Environment.CurrentDirectory + @"\www\" + rn + ".goomba", "->GOOMBATIME<-\n" + codes + "->STOPITGOOMBA<-");
                                     runGoombaCode(req, Environment.CurrentDirectory + @"\www\" + rn + ".goomba", true);
+#else
+                                    File.WriteAllText(Environment.CurrentDirectory + @"/www/" + rn + ".goomba", "->GOOMBATIME<-\n" + codes + "->STOPITGOOMBA<-");
+                                    runGoombaCode(req, Environment.CurrentDirectory + @"/www/" + rn + ".goomba", true);
+#endif
+
                                 }
                                 else
                                 {
-                                    File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "Goomba says: RUNFUN could not find function " + commandline[1] + " at line " + i + ". Code will not continue.");
+                                    ErrorHandler("Goomba says: RUNFUN could not find function " + commandline[1] + " at line " + i + ". Code will not continue.");
                                     pageData = "Goomba says: RUNFUN could not find function " + commandline[1] + " at line " + i + ". Code will not continue.";
                                     return;
                                 }
                             }
                             else
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: A function in a function at function code " + i + ".");
+                                ErrorHandler("\nGoomba says: A function in a function at function code " + i + ".");
                             }
                         }
                         // Create variable
@@ -316,7 +332,7 @@ namespace GOOMBAServer
                         {
                             if (commandline.Length != 3)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 2 arguments after CREATEHTMLVAR at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Expecting 2 arguments after CREATEHTMLVAR at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Expecting 2 arguments after CREATEHTMLVAR at line " + i + ". Code will not continue.";
                                 return;
                             }
@@ -327,8 +343,12 @@ namespace GOOMBAServer
                                 {
                                     rng = 69420;
                                 }
+#if BUILDTYPE_WINDOWS
+                          string theName = Environment.CurrentDirectory + @"\www\" + "AksTEMPMethod" + rng + ".xml";
+#else
+                                string theName = Environment.CurrentDirectory + @"/www/" + "AksTEMPMethod" + rng + ".xml";
+#endif
 
-                                string theName = Environment.CurrentDirectory + @"\www\" + "AksTEMPMethod" + rng + ".xml";
                                 File.WriteAllText(theName, pageData);
                                 try
                                 {
@@ -342,14 +362,14 @@ namespace GOOMBAServer
                                     }
                                     else
                                     {
-                                        File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting valid ID at line " + i + ". Code will not continue.");
+                                        ErrorHandler("\nGoomba says: Expecting valid ID at line " + i + ". Code will not continue.");
                                         pageData = "Goomba says: Expecting valid ID at line " + i + ". Code will not continue.";
                                         return;
                                     }
                                 }
                                 catch
                                 {
-                                    File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Unexpected error at line " + i + ". Code will not continue.");
+                                    ErrorHandler("\nGoomba says: Unexpected error at line " + i + ". Code will not continue.");
                                     pageData = "Goomba says: Unexpected error at line " + i + ". Code will not continue.";
                                     File.Delete(theName);
                                     return;
@@ -366,7 +386,7 @@ namespace GOOMBAServer
                             }
                             else
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Undefined variable " + commandline[1] + " at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Undefined variable " + commandline[1] + " at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Undefined variable " + commandline[1] + " at line " + i + ". Code will not continue.";
                                 return;
                             }
@@ -376,39 +396,44 @@ namespace GOOMBAServer
                         {
                             if (commandline.Length == 1)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 2 arguments after WRITEPAPER at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Expecting 2 arguments after WRITEPAPER at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Expecting 2 arguments after WRITEPAPER at line " + i + ". Code will not continue.";
                                 return;
                             }
                             if (commandline.Length == 2)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 2 arguments after WRITEPAPER at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Expecting 2 arguments after WRITEPAPER at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Expecting 2 arguments after WRITEPAPER at line " + i + ". Code will not continue.";
                                 return;
                             }
                             if (commandline.Length > 1000)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "Goomba says: WRITEPAPER does not accept " + commandline.Length + " arguments at line " + i + ". Code will not continue.");
+                                ErrorHandler("Goomba says: WRITEPAPER does not accept " + commandline.Length + " arguments at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: WRITEPAPER does not accept " + commandline.Length + " arguments at line " + i + ". Code will not continue.";
                                 return;
                             }
                             var txt = "";
                             for (int j = 2, loopTo = commandline.Length - 1; j <= loopTo; j++)
                                 txt += commandline[j] + " ";
-                            File.WriteAllText((Environment.CurrentDirectory + @"\www\" + commandline[1]).Replace("..", ""), txt.Replace(@"\n", "\n"));
+#if BUILDTYPE_WINDOWS
+                          File.WriteAllText((Environment.CurrentDirectory + @"\www\" + commandline[1]).Replace("..", ""), txt.Replace(@"\n", "\n"));
+#else
+                            File.WriteAllText((Environment.CurrentDirectory + @"/www/" + commandline[1]).Replace("..", ""), txt.Replace(@"\n", "\n"));
+#endif
+
                         }
                         // SPELLSENTENCE is the same as SPELLWORD, but it allows spaces.
                         else if (commandline[0] == "SPELLSENTENCE:")
                         {
                             if (commandline.Length == 1)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 1 argument after SPELLSENTENCE at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Expecting 1 argument after SPELLSENTENCE at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Expecting 1 argument after SPELLSENTENCE at line " + i + ". Code will not continue.";
                                 return;
                             }
                             if (commandline.Length > 1000)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: SPELLSENTENCE does not accept " + commandline.Length + " arguments at line " + i + ".Code will not continue.");
+                                ErrorHandler("\nGoomba says: SPELLSENTENCE does not accept " + commandline.Length + " arguments at line " + i + ".Code will not continue.");
                                 pageData = "Goomba says: SPELLSENTENCE does not accept " + commandline.Length + " arguments at line " + i + ". Code will not continue.";
                                 return;
                             }
@@ -421,26 +446,31 @@ namespace GOOMBAServer
                         {
                             if (commandline.Length == 1)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 2 arguments after APPENDTOPAPER at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Expecting 2 arguments after APPENDTOPAPER at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Expecting 2 arguments after APPENDTOPAPER at line " + i + ". Code will not continue.";
                                 return;
                             }
                             if (commandline.Length == 2)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 2 arguments after APPENDTOPAPER at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Expecting 2 arguments after APPENDTOPAPER at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Expecting 2 arguments after APPENDTOPAPER at line " + i + ". Code will not continue.";
                                 return;
                             }
                             if (commandline.Length > 1000)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: APPENDTOPAPER does not accept " + commandline.Length + " arguments at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: APPENDTOPAPER does not accept " + commandline.Length + " arguments at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: APPENDTOPAPER does not accept " + commandline.Length + " arguments at line " + i + ". Code will not continue.";
                                 return;
                             }
                             var txt = "";
                             for (int j = 2, loopTo = commandline.Length - 1; j <= loopTo; j++)
                                 txt += commandline[j] + " ";
+#if BUILDTYPE_WINDOWS
                             File.AppendAllText((Environment.CurrentDirectory + @"\www\" + commandline[1]).Replace("..", ""), txt.Replace(@"\n", "\n"));
+#else
+                            File.AppendAllText((Environment.CurrentDirectory + @"/www/" + commandline[1]).Replace("..", ""), txt.Replace(@"\n", "\n"));
+#endif
+
                         }
                         else if (commandline[0] == "READPAPER:")
                         {
@@ -453,11 +483,15 @@ namespace GOOMBAServer
                             }
                             else if (commandline.Length != 2)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 1 argument after READPAPER, not " + commandline.Length + " at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Expecting 1 argument after READPAPER, not " + commandline.Length + " at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Expecting 1 argument after READPAPER, not " + commandline.Length + " at line " + i + ". Code will not continue.";
                                 return;
                             }
+#if BUILDTYPE_WINDOWS
                             StreamReader streamReader1 = new StreamReader(Environment.CurrentDirectory + @"\www\" + commandline[1]);
+#else
+                            StreamReader streamReader1 = new StreamReader(Environment.CurrentDirectory + @"/www/" + commandline[1]);
+#endif
                             var txt = streamReader1.ReadToEnd();
                             pageData += txt;
                         }
@@ -465,7 +499,7 @@ namespace GOOMBAServer
                         {
                             if (commandline.Length != 5)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting 4 arguments after CONNECT, not " + commandline.Length + " at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Expecting 4 arguments after CONNECT, not " + commandline.Length + " at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Expecting 4 arguments after CONNECT, not " + commandline.Length + " at line " + i + ". Code will not continue.";
                             }
                             InitializeSQL(commandline[1], commandline[2], commandline[3], commandline[4]);
@@ -474,7 +508,7 @@ namespace GOOMBAServer
                         {
                             if (commandline.Length != 2)
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: REMOVE accepts 1 argument at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: REMOVE accepts 1 argument at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: REMOVE accepts 1 argument at line " + i + ". Code will not continue.";
                             }
                             pageData = pageData.Replace(commandline[1], "");
@@ -490,19 +524,19 @@ namespace GOOMBAServer
                                 }
                                 else
                                 {
-                                    File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting \" after QUERY, at line " + i + ". Code will not continue.");
+                                    ErrorHandler("\nGoomba says: Expecting \" after QUERY, at line " + i + ". Code will not continue.");
                                     pageData = "Goomba says: Expecting \" after QUERY, at line " + i + ". Code will not continue.";
                                 }
                             }
                             else
                             {
-                                File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nGoomba says: Expecting \" right after QUERY, at line " + i + ". Code will not continue.");
+                                ErrorHandler("\nGoomba says: Expecting \" right after QUERY, at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Expecting \" right after QUERY, at line " + i + ". Code will not continue.";
                             }
                         }
                         else
                         {
-                            File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", "\nUndefined GOOMBA_THING " + commandline[0] + " at line " + i + ". Code will not continue.");
+                            ErrorHandler("\nUndefined GOOMBA_THING " + commandline[0] + " at line " + i + ". Code will not continue.");
                             pageData = "Undefined GOOMBA_THING " + commandline[0] + " at line " + i + ". Code will not continue.";
                             return;
                         }
@@ -573,10 +607,19 @@ namespace GOOMBAServer
 
 
                 // Find all files to check
+#if BUILDTYPE_WINDOWS
                 List<string> allFiles = GetFilesFromPath(Environment.CurrentDirectory + @"\www");
+#else
+                List<string> allFiles = GetFilesFromPath(Environment.CurrentDirectory + @"/www");
+#endif
                 foreach (string file in allFiles)
                 {
-                    string thething = "/" + file.Replace(Environment.CurrentDirectory + @"\www\", "").Replace("\\", "/");
+#if BUILDTYPE_WINDOWS
+                string thething = "/" + file.Replace(Environment.CurrentDirectory + @"\www\", "").Replace("\\", "/");
+#else
+                string thething = "/" + file.Replace(Environment.CurrentDirectory + @"/www/", "").Replace("\\", "/");
+#endif
+
                     if (req.Url.AbsolutePath == thething || req.Url.AbsolutePath == "" || req.Url.AbsolutePath == "/")
                     {
                         if (req.Url.AbsolutePath.EndsWith(".goomba"))
@@ -674,17 +717,3 @@ namespace GOOMBAServer
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
