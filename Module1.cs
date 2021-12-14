@@ -2,8 +2,8 @@
 //        GOOMBAServer
 //
 //  Created by: FreeBSoD on GitHub
-//  Aka GOOMBAAAAAAAAAAAAAAAAAAAAA
-//      AAAAAAAAAAAAA
+//  Aka GoombaProgrammer
+//          ----
 //
 //
 //     Thanks for viewing!
