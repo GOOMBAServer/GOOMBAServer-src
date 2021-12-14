@@ -40,3 +40,13 @@ SPELLSENTENCE: Hey, earth!
 
 # Can I use this source?
 Yes, you are allowed to use this source if you follow the license.
+
+# Q&A
+Q: Is there an official website?
+A: Yes, https://www.goombaserver.org/
+
+Q: Are there tutorials for GOOMBAServer?
+A: On the website, yes. and in the readme, aka what you are reading right now. 
+
+Q: How can I support the development?
+A: Since I don't force people to donate, you can support it by finding bugs, and contributing!
