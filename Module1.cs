@@ -736,6 +736,17 @@ namespace GOOMBAServer
                 Directory.CreateDirectory(Environment.CurrentDirectory + "/www");
             }
 #endif
+#if BUILDTYPE_WINDOWS
+            if (!File.Exists(Environment.CurrentDirectory + "\\GOOMBA.cfg"))
+            {
+                File.WriteAllText(Environment.CurrentDirectory + "\\GOOMBA.cfg", "http://localhost:8000/");
+            }
+#else
+            if (!File.Exists(Environment.CurrentDirectory + "/GOOMBA.cfg"))
+            {
+                File.WriteAllText(Environment.CurrentDirectory + "/GOOMBA.cfg", "http://localhost:8000/");
+            }
+#endif
             url = File.ReadAllText(Environment.CurrentDirectory + "/GOOMBA.cfg");
 #if BUILDTYPE_WINDOWS
             url = File.ReadAllText(Environment.CurrentDirectory + "\\GOOMBA.cfg");
