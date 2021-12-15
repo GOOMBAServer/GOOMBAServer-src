@@ -71,7 +71,7 @@ namespace GOOMBAServer
         {
             pageData = error;
 #if BUILDTYPE_WINDOWS
-                         File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", error);
+            File.AppendAllText(Environment.CurrentDirectory + @"\www\goomba_errors", error);
 #else
             File.AppendAllText(Environment.CurrentDirectory + @"/www/goomba_errors", error);
 #endif
@@ -124,13 +124,15 @@ namespace GOOMBAServer
         {
             Console.WriteLine("Query Started.");
             string query = cmad;
-
+            
             if (query.ToUpper().StartsWith("SELECT"))
             {
                 Console.WriteLine("ooOOH, a select query!");
+
                 //Open connection
                 if (OpenConnection() == true)
                 {
+                    string[] forSelect = query.Split(' ');
                     Console.WriteLine("Open");
                     //create mysql command
                     MySqlCommand cmd = new MySqlCommand();
@@ -144,10 +146,24 @@ namespace GOOMBAServer
                     string[] vs = { };
                     var i = -1;
                     vs1.Clear();
-                    while (ret.Read())
+                    if (forSelect[1] != "*")
                     {
-                        i++;
-                        vs1.Add(ret["testing"].ToString());
+                        while (ret.Read())
+                        {
+                            i++;
+                            vs1.Add(ret[forSelect[1]].ToString());
+                        }
+                    }
+                    else
+                    {
+                        while (ret.Read())
+                        {
+                            for (var f = 0; f < ret.FieldCount; f++)
+                            {
+                                i++;
+                                vs1.Add(ret[ret.GetName(f)].ToString());
+                            }
+                        }
                     }
                     ret.Close();
                     Console.WriteLine("Done");
@@ -210,7 +226,7 @@ namespace GOOMBAServer
             if (isIndex == true)
             {
 #if BUILDTYPE_WINDOWS
-                          streamReader = new StreamReader(Environment.CurrentDirectory + @"\www\" + "index.goomba");
+                streamReader = new StreamReader(Environment.CurrentDirectory + @"\www\" + "index.goomba");
 #else
                 streamReader = new StreamReader(Environment.CurrentDirectory + @"/www/" + "index.goomba");
 #endif
@@ -282,9 +298,9 @@ namespace GOOMBAServer
                             }
                             if (arrays2.Contains(commandline[1]))
                             {
-                              
-                                    pageData += arrays[arrays2.IndexOf(commandline[1])][Convert.ToInt32(commandline[2])];
-                                
+
+                                pageData += arrays[arrays2.IndexOf(commandline[1])][Convert.ToInt32(commandline[2])];
+
                             }
                         }
                         // Function support
@@ -292,7 +308,7 @@ namespace GOOMBAServer
                         {
                             if (!isFunc)
                             {
-                                if (commandline.Length < 2)
+                                if (commandline.Length < 3)
                                 {
                                     ErrorHandler("\nGoomba says: Expecting 2 or more arguments after FUNCTION at line " + i + ". Code will not continue.");
                                     pageData = "Goomba says: Expecting 2 or more arguments after FUNCTION at line " + i + ". Code will not continue.";
@@ -305,7 +321,8 @@ namespace GOOMBAServer
                                 var c = StringSplit(txt, ";;");
                                 functionLengths.Add(c.Length);
                                 functionCodes.AddRange(c);
-                            } else
+                            }
+                            else
                             {
                                 ErrorHandler("\nGoomba says: A function in a function at function code " + i + ".");
                             }
@@ -331,12 +348,12 @@ namespace GOOMBAServer
 
                                         if (functionCodes.FindIndex(s.StartsWith) < len)
                                         {
-                                            if(functionCodes.FindIndex(s.StartsWith)!=len-1){codes+=s+"\n";}else{codes+=s;}
+                                            if (functionCodes.FindIndex(s.StartsWith) != len - 1) { codes += s + "\n"; } else { codes += s; }
                                         }
                                     }
                                     int rn = new Random().Next(1, 999999999);
 #if BUILDTYPE_WINDOWS
-                          File.WriteAllText(Environment.CurrentDirectory + @"\www\" + rn + ".goomba", "->GOOMBATIME<-\n" + codes + "->STOPITGOOMBA<-");
+                                    File.WriteAllText(Environment.CurrentDirectory + @"\www\" + rn + ".goomba", "->GOOMBATIME<-\n" + codes + "->STOPITGOOMBA<-");
                                     runGoombaCode(req, Environment.CurrentDirectory + @"\www\" + rn + ".goomba", true);
 #else
                                     File.WriteAllText(Environment.CurrentDirectory + @"/www/" + rn + ".goomba", "->GOOMBATIME<-\n" + codes + "->STOPITGOOMBA<-");
@@ -356,6 +373,14 @@ namespace GOOMBAServer
                                 ErrorHandler("\nGoomba says: A function in a function at function code " + i + ".");
                             }
                         }
+                        else if(commandline[0] == "STR:")
+                        {
+                            var txt = "";
+                            for (int j = 2, loopTo = commandline.Length - 1; j <= loopTo; j++)
+                                txt += commandline[j] + " ";
+                            strVars.Add(commandline[1]);
+                            strVars2.Add(txt);
+                        }
                         // Create variable
                         else if (commandline[0] == "CREATEHTMLVAR:")
                         {
@@ -373,7 +398,7 @@ namespace GOOMBAServer
                                     rng = 69420;
                                 }
 #if BUILDTYPE_WINDOWS
-                          string theName = Environment.CurrentDirectory + @"\www\" + "AksTEMPMethod" + rng + ".xml";
+                                string theName = Environment.CurrentDirectory + @"\www\" + "AksTEMPMethod" + rng + ".xml";
 #else
                                 string theName = Environment.CurrentDirectory + @"/www/" + "AksTEMPMethod" + rng + ".xml";
 #endif
@@ -445,7 +470,7 @@ namespace GOOMBAServer
                             for (int j = 2, loopTo = commandline.Length - 1; j <= loopTo; j++)
                                 txt += commandline[j] + " ";
 #if BUILDTYPE_WINDOWS
-                          File.WriteAllText((Environment.CurrentDirectory + @"\www\" + commandline[1]).Replace("..", ""), txt.Replace(@"\n", "\n"));
+                            File.WriteAllText((Environment.CurrentDirectory + @"\www\" + commandline[1]).Replace("..", ""), txt.Replace(@"\n", "\n"));
 #else
                             File.WriteAllText((Environment.CurrentDirectory + @"/www/" + commandline[1]).Replace("..", ""), txt.Replace(@"\n", "\n"));
 #endif
@@ -516,7 +541,7 @@ namespace GOOMBAServer
                                 pageData += ok.Replace(@"\n", "<br />");
                                 return;
                             }
-                            
+
                             try
                             {
 #if BUILDTYPE_WINDOWS
@@ -653,7 +678,7 @@ namespace GOOMBAServer
                 foreach (string file in allFiles)
                 {
 #if BUILDTYPE_WINDOWS
-                string thething = "/" + file.Replace(Environment.CurrentDirectory + @"\www\", "").Replace("\\", "/");
+                    string thething = "/" + file.Replace(Environment.CurrentDirectory + @"\www\", "").Replace("\\", "/");
 #else
                 string thething = "/" + file.Replace(Environment.CurrentDirectory + @"/www/", "").Replace("\\", "/");
 #endif
