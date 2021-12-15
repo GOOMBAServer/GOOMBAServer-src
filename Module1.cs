@@ -39,12 +39,12 @@ namespace GOOMBAServer
         // Vars
         public static XmlDocument doc = new XmlDocument();
 
-        public static string version = "0.1";
+        public static string version = "0.2";
         public static HttpListener listener;
         public static string url = "";
         public static int requestCount = 0;
         public static string pageData =
-            "<h1 style=\"font-family: verdana;\">GOOMBAServer Error</h1><h3 style=\"font-family: verdana;\">HTTP 500 Server Error <small>(GoombaErr #2)</small></h3><br /><br /><p style=\"font-family: verdana;\">GOOMBAServer v0.1</p>";
+            "<h1 style=\"font-family: verdana;\">GOOMBAServer Error</h1><h3 style=\"font-family: verdana;\">HTTP 500 Server Error <small>(GoombaErr #2)</small></h3><br /><br /><p style=\"font-family: verdana;\">GOOMBAServer v0.2</p>";
         public static MySqlConnection connection;
         public static string server;
         public static string database;
@@ -711,7 +711,7 @@ namespace GOOMBAServer
                     }
                     else
                     {
-                        pageData = "<h1 style=\"font-family: verdana;\">GOOMBAServer Error</h1><h3 style=\"font-family: verdana;\">HTTP 404 Not Found <small>(GoombaErr #1)</small></h3><br /><br /><p style=\"font-family: verdana;\">GOOMBAServer v0.1</p>";
+                        pageData = "<h1 style=\"font-family: verdana;\">GOOMBAServer Error</h1><h3 style=\"font-family: verdana;\">HTTP 404 Not Found <small>(GoombaErr #1)</small></h3><br /><br /><p style=\"font-family: verdana;\">GOOMBAServer v0.2</p>";
                     }
                 }
             // File is found
