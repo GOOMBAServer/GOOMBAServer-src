@@ -19,6 +19,10 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using System.Xml;
+using System.Collections.Specialized;
+using System.CodeDom.Compiler;
+using System.CodeDom;
+using System.Linq;
 
 namespace GOOMBAServer
 {
@@ -120,11 +124,164 @@ namespace GOOMBAServer
         }
 
         //Query
-        public static string[] Query(string cmad)
+        public static string[] Query(string cmad, bool useSafeStr)
+        {
+   
+                Console.WriteLine("Query Started.");
+                string query = cmad;
+
+                if (query.ToUpper().StartsWith("SELECT"))
+                {
+                    Console.WriteLine("ooOOH, a select query!");
+
+                    //Open connection
+                    if (OpenConnection() == true)
+                    {
+                        string[] forSelect = query.Split(' ');
+                        Console.WriteLine("Open");
+                        //create mysql command
+                        MySqlCommand cmd = new MySqlCommand();
+                        //Assign the query using CommandText
+                        cmd.CommandText = query;
+                        //Assign the connection using Connection
+                        cmd.Connection = connection;
+
+                        //Execute query
+                        var ret = cmd.ExecuteReader();
+                        string[] vs = { };
+                        var i = -1;
+                        vs1.Clear();
+                        if (forSelect[1] != "*")
+                        {
+                            while (ret.Read())
+                            {
+                                i++;
+                                vs1.Add(ret[forSelect[1]].ToString());
+                            }
+                        }
+                        else
+                        {
+                            while (ret.Read())
+                            {
+                                for (var f = 0; f < ret.FieldCount; f++)
+                                {
+                                    i++;
+                                    vs1.Add(ret[ret.GetName(f)].ToString());
+                                }
+                            }
+                        }
+                        ret.Close();
+                        Console.WriteLine("Done");
+                        connection.Close();
+                        return vs;
+                    }
+                }
+                else
+                {
+                    //Open connection
+                    if (OpenConnection() == true)
+                    {
+                        Console.WriteLine("Open");
+                        //create mysql command
+                        MySqlCommand cmd = new MySqlCommand();
+                        //Assign the query using CommandText
+                        cmd.CommandText = query;
+                        //Assign the connection using Connection
+                        cmd.Connection = connection;
+
+                        //Execute query
+                        cmd.ExecuteNonQuery();
+                        Console.WriteLine("Done");
+                        string[] strtoret = { };
+                        connection.Close();
+                        return strtoret;
+
+                    }
+                    string[] strtorets = { };
+                    return strtorets;
+                }
+                string[] strtoretss = { };
+                return strtoretss;
+            
+          
+
+        }
+        public static void print(object text)
+        {
+            Console.WriteLine(text);
+        }
+        public static string Escape(string input)
+        {
+            using (var writer = new StringWriter())
+            {
+                using (var provider = CodeDomProvider.CreateProvider("CSharp"))
+                {
+                    provider.GenerateCodeFromExpression(new CodePrimitiveExpression(input), writer, null);
+                    return writer.ToString();
+                }
+            }
+        }
+        public static bool IsNumeric(string value)
+        {
+            return value.All(char.IsNumber);
+        }
+        public static string SafeINSERT(string INTO, NameValueCollection VALUES)
+        {
+            print(VALUES.Count);
+            string queryString = "INSERT INTO " + INTO + " (";
+            for (int i = 0; i < VALUES.Count; i++)
+            {
+                if(i + 1 == VALUES.Count)
+                {
+                    queryString += VALUES.Keys[i];
+                }
+                else
+                {
+                    queryString += VALUES.Keys[i] + ",";
+                }
+            }
+            queryString += ") VALUES (";
+
+            for (int i = 0; i < VALUES.Count; i++)
+            {
+                queryString += "@a" + i + (i + 1 == VALUES.Count ? (")") : (","));
+            }
+            Console.WriteLine(queryString);
+            //create mysql command
+            MySqlCommand cmd = new MySqlCommand();
+
+            //Assign the query using CommandText
+            cmd.CommandText = queryString;
+            for (int i = 0; i < VALUES.Count; i++)
+            {
+                if(!IsNumeric(VALUES[i]))
+                {
+                    print("oops");
+                    cmd.Parameters.Add("@a" + Convert.ToString(i), MySqlDbType.String);
+                    cmd.Parameters["@a" + Convert.ToString(i)].Value = VALUES[i];
+                    continue;
+                }
+             
+             
+                cmd.Parameters.Add("@a" + Convert.ToString(i), MySqlDbType.Int32);
+                cmd.Parameters["@a" + Convert.ToString(i)].Value = VALUES[i];
+                print("INT");
+            }
+
+            //Assign the connection using Connection
+            cmd.Connection = connection;
+
+            //Execute query
+            cmd.ExecuteNonQuery();
+            Console.WriteLine("Done");
+            queryString += ");";
+            return queryString;
+        }
+        public static string[] QuerySAFE(string cmad, bool useSafeStr)
         {
             Console.WriteLine("Query Started.");
             string query = cmad;
-            
+
             if (query.ToUpper().StartsWith("SELECT"))
             {
                 Console.WriteLine("ooOOH, a select query!");
@@ -151,7 +308,7 @@ namespace GOOMBAServer
                         while (ret.Read())
                         {
                             i++;
-                            vs1.Add(ret[forSelect[1]].ToString());
+                            vs1.Add(ret[forSelect[1]].ToString().Replace("<", "").Replace("&lt;", "").Replace("%3c", "").Replace(">", "").Replace("&gt;", "").Replace("%3e", ""));
                         }
                     }
                     else
@@ -161,7 +318,7 @@ namespace GOOMBAServer
                             for (var f = 0; f < ret.FieldCount; f++)
                             {
                                 i++;
-                                vs1.Add(ret[ret.GetName(f)].ToString());
+                                vs1.Add(ret[ret.GetName(f)].ToString().Replace("<", "").Replace("&lt;", "").Replace("%3c", "").Replace(">", "").Replace("&gt;", "").Replace("%3e", ""));
                             }
                         }
                     }
@@ -171,22 +328,56 @@ namespace GOOMBAServer
                     return vs;
                 }
             }
-            else
+            else if(query.ToUpper().StartsWith("INSERT"))
             {
+                Console.WriteLine("Insert");
                 //Open connection
                 if (OpenConnection() == true)
                 {
                     Console.WriteLine("Open");
-                    //create mysql command
-                    MySqlCommand cmd = new MySqlCommand();
-                    //Assign the query using CommandText
-                    cmd.CommandText = query;
-                    //Assign the connection using Connection
-                    cmd.Connection = connection;
+                    NameValueCollection coolValueCollection0 = new NameValueCollection();
+                    NameValueCollection coolValueCollection1 = new NameValueCollection();
+                    var donextpart0 = false;
+                    var donextpart = false;
+                    var q1 = query.Split(' ');
+                    Console.WriteLine("Done with " + q1.Length);
+                    var i = -69;
+                    for (i = 0; i < q1.Length; i++)
+                    {
+                        if (q1[i].StartsWith("(") && i < 4)
+                        {
+                            
+            
+                             
+                            donextpart0 = true;
+                            donextpart = false;
+                            continue;
+                        }
+                        if (donextpart0) // DO IT JUST, DO IT!!!!
+                        {
+                  
+                            i--;
+                            coolValueCollection0.Add(q1[i].Replace("(", "").Replace(")", ""), null);
+                            i++;
+                            continue;
+                        }
+                     
+                        
+                    }
+                    var y = i - 1;
+                    donextpart = true;
+                    for (y = i - 2;  y < q1.Length - 1; y++)
+                    {
+                        print("ran"); 
+                        if(donextpart) // DO IT, JUST, DO IT!!!
+                        {
+                            print(q1.Length - i);
+                            coolValueCollection1.Add(coolValueCollection0.Keys[q1.Length - i], q1[y + 1].Replace("(", "").Replace(")", "").Replace("'", "").Replace("`", "").Replace(";", ""));
+                        }
+                    }
 
-                    //Execute query
-                    cmd.ExecuteNonQuery();
-                    Console.WriteLine("Done");
+                    print(coolValueCollection1.Count);
+                    SafeINSERT(query.Split(' ')[2], coolValueCollection1);
                     string[] strtoret = { };
                     connection.Close();
                     return strtoret;
@@ -198,7 +389,6 @@ namespace GOOMBAServer
             string[] strtoretss = { };
             return strtoretss;
         }
-
 
         public static void runGoombaCode(HttpListenerRequest req, string file = "", bool isFunc = false)
         {
@@ -373,7 +563,7 @@ namespace GOOMBAServer
                                 ErrorHandler("\nGoomba says: A function in a function at function code " + i + ".");
                             }
                         }
-                        else if(commandline[0] == "STR:")
+                        else if (commandline[0] == "STR:")
                         {
                             var txt = "";
                             for (int j = 2, loopTo = commandline.Length - 1; j <= loopTo; j++)
@@ -564,6 +754,7 @@ namespace GOOMBAServer
                             {
                                 ErrorHandler("\nGoomba says: Expecting 4 arguments after CONNECT, not " + commandline.Length + " at line " + i + ". Code will not continue.");
                                 pageData = "Goomba says: Expecting 4 arguments after CONNECT, not " + commandline.Length + " at line " + i + ". Code will not continue.";
+                                return;
                             }
                             InitializeSQL(commandline[1], commandline[2], commandline[3], commandline[4]);
                         }
@@ -579,16 +770,39 @@ namespace GOOMBAServer
                         // Query a MySQL query.
                         else if (commandline[0] == "QUERY:")
                         {
-                            if (line.Substring(7, 1) == "\"")
+                            var useSafeStr = false;
+                            if (commandline[1] == "USESAFESTR:")
                             {
-                                if (line.LastIndexOf('"') > 7)
+                                useSafeStr = true;
+                            }
+                            if (useSafeStr)
+                            {
+                                if (line.Substring(19, 1) == "\"")
                                 {
-                                    Query(line.Substring(line.IndexOf('"') + 1, line.LastIndexOf('"') - 1 - line.IndexOf('"')));
+                                    if (line.LastIndexOf('"') > 18)
+                                    {
+                                        QuerySAFE(line.Substring(line.IndexOf('"') + 1, line.LastIndexOf('"') - 1 - line.IndexOf('"')), useSafeStr);
+                                    }
+                                    else
+                                    {
+                                        ErrorHandler("\nGoomba says: Expecting \" after QUERY, at line " + i + ". Code will not continue.");
+                                        pageData = "Goomba says: Expecting \" after QUERY, at line " + i + ". Code will not continue.";
+                                    }
                                 }
-                                else
+                            } 
+                            else if (!useSafeStr)
+                            {
+                                if (line.Substring(7, 1) == "\"")
                                 {
-                                    ErrorHandler("\nGoomba says: Expecting \" after QUERY, at line " + i + ". Code will not continue.");
-                                    pageData = "Goomba says: Expecting \" after QUERY, at line " + i + ". Code will not continue.";
+                                    if (line.LastIndexOf('"') > 7)
+                                    {
+                                        Query(line.Substring(line.IndexOf('"') + 1, line.LastIndexOf('"') - 1 - line.IndexOf('"')), useSafeStr);
+                                    }
+                                    else
+                                    {
+                                        ErrorHandler("\nGoomba says: Expecting \" after QUERY, at line " + i + ". Code will not continue.");
+                                        pageData = "Goomba says: Expecting \" after QUERY, at line " + i + ". Code will not continue.";
+                                    }
                                 }
                             }
                             else
