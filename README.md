@@ -4,7 +4,7 @@ I am putting 2 in quotation marks because,
 it really isn't 2. I resetted the version to 1.00.
 INFORMATION: https://www.computa.me/GOOMBAServer
 
-# GOOMBAServer [OUTDATED]
+# GOOMBAServer
 GOOMBAServer - A Server-Side programming language for websites!
 
 GOOMBAServer is based on PHP, NodeJS, and ASP.NET (Easier explanation: server side languages for websites).
