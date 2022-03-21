@@ -1,8 +1,4 @@
-# THIS IS THE OLD GOOMBASERVER!
-Yes, GOOMBAServer "2" has been released.
-I am putting 2 in quotation marks because,
-it really isn't 2. I resetted the version to 1.00.
-INFORMATION: https://www.computa.me/GOOMBAServer
+# Development now continues!
 
 # GOOMBAServer
 GOOMBAServer - A Server-Side programming language for websites!
