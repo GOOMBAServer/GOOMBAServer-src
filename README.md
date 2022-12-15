@@ -54,3 +54,5 @@ A: On the website, yes. and in the readme, aka what you are reading right now.
 
 Q: How can I support the development?
 A: Since I don't force people to donate, you can support it by finding bugs, and contributing!
+
+# development now continues!!!!!!!!!
