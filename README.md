@@ -23,6 +23,8 @@ Then close Visual Studio, and open `Compile.vbs`
 
 If you get an error when compiling, you can create an issue.
 
+# note: I will work on GOOMBAServer again!
+
 # Sample Codes
 Database Sample:
 >THINK Connect to the DB (Cannot contain spaces, currently)  
