@@ -3,6 +3,8 @@
 # GOOMBAServer
 GOOMBAServer - A Server-Side programming language for websites!
 
+### Development now continues, sorry for no updates since march!! (15/12/2022)
+
 GOOMBAServer is based on PHP, NodeJS, and ASP.NET (Easier explanation: server side languages for websites).
 Using GOOMBAServer is free for everyone, But you should have some computer skills.
 If you are using an unchanged GOOMBA.cfg file, just run GOOMBAServer.exe and go to http://localhost:8000/
