@@ -43,7 +43,9 @@ SPELLARRAY: MyCoolArray 0
 
 Print text Sample  
 
->THINK Print something!  
+>THINK Print something!
+>
+# I will now continue GOOMBAServer!
 SPELLSENTENCE: Hey, earth!  
 
 # Can I use this source?
