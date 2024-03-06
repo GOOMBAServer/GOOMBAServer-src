@@ -58,6 +58,8 @@ A: Yes, https://www.goombaserver.org/
 Q: Are there tutorials for GOOMBAServer?
 A: On the website, yes. and in the readme, aka what you are reading right now. 
 
+## AFTER ALL THSE YEARS,I am cntining the devleopmenht of gombaSERVER
+
 Q: How can I support the development?
 A: Since I don't force people to donate, you can support it by finding bugs, and contributing!
 
