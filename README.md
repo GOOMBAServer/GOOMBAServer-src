@@ -14,9 +14,9 @@ Using GOOMBAServer is free for everyone, But you should have some computer skill
 If you are using an unchanged GOOMBA.cfg file, just run GOOMBAServer.exe and go to http://localhost:8000/
 
 It has been tested on:
-- Windows 10 64 bit                  [SUCCESS]
-- Ubuntu 20.04 VPS server            [SUCCESS]
-- Lubuntu 20.04.3                    [SUCCESS]
+- Windows 10 64 bit                  [SUCCESS]   (DEVELOPMENT CONTINUED!!!!!!!!!!1)
+- Ubuntu 20.04 VPS server            [SUCCESS]   (DEVELOPMENT CONTINUED!!!!!!!!!!1)
+- Lubuntu 20.04.3                    [SUCCESS]   (DEVELOPMENT CONTINUED!!!!!!!!!!1)
 
 # Sorry for no updates, Development will now be continued. (2/4/2022)
 
