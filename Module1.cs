@@ -49,27 +49,11 @@ namespace GOOMBAServer
         public static int requestCount = 0;
         public static string pageData =
             "<h1 style=\"font-family: verdana;\">GOOMBAServer Error</h1><h3 style=\"font-family: verdana;\">HTTP 500 Server Error <small>(GoombaErr #2)</small></h3><br /><br /><p style=\"font-family: verdana;\">GOOMBAServer v0.2</p>";
-        public static MySqlConnection connection;
-        public static string server;
-        public static string database;
-        public static string uid;
+
         public static List<string> vs1 = new List<string>();
-        public static string password;
         public static string[] StringSplit(string StringToSplit, string Delimitator)
         {
             return StringToSplit.Split(new[] { Delimitator }, StringSplitOptions.None);
-        }
-        //Initialize values
-        public static void InitializeSQL(string host, string db, string user, string pass)
-        {
-            server = host;
-            database = db;
-            uid = user;
-            password = pass;
-            string connectionString;
-            connectionString = "SERVER=" + server + ";" + "DATABASE=" +
-            database + ";" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
-            connection = new MySqlConnection(connectionString);
         }
         public static void ErrorHandler(string error)
         {
@@ -86,7 +70,7 @@ namespace GOOMBAServer
         {
             try
             {
-                connection.Open();
+                SQL.connection.Open();
                 return true;
             }
             catch (MySqlException ex)
@@ -114,7 +98,7 @@ namespace GOOMBAServer
         {
             try
             {
-                connection.Close();
+                SQL.connection.Close();
                 return true;
             }
             catch
@@ -144,7 +128,7 @@ namespace GOOMBAServer
                         //Assign the query using CommandText
                         cmd.CommandText = query;
                         //Assign the connection using Connection
-                        cmd.Connection = connection;
+                        cmd.Connection = SQL.connection;
 
                         //Execute query
                         var ret = cmd.ExecuteReader();
@@ -172,7 +156,7 @@ namespace GOOMBAServer
                         }
                         ret.Close();
                         Console.WriteLine("Done");
-                        connection.Close();
+                        SQL.connection.Close();
                         return vs;
                     }
                 }
@@ -187,13 +171,13 @@ namespace GOOMBAServer
                         //Assign the query using CommandText
                         cmd.CommandText = query;
                         //Assign the connection using Connection
-                        cmd.Connection = connection;
+                        cmd.Connection = SQL.connection;
 
                         //Execute query
                         cmd.ExecuteNonQuery();
                         Console.WriteLine("Done");
                         string[] strtoret = { };
-                        connection.Close();
+                        SQL.connection.Close();
                         return strtoret;
 
                     }
@@ -269,7 +253,7 @@ namespace GOOMBAServer
             }
 
             //Assign the connection using Connection
-            cmd.Connection = connection;
+            cmd.Connection = SQL.connection;
 
             //Execute query
             cmd.ExecuteNonQuery();
@@ -296,7 +280,7 @@ namespace GOOMBAServer
                     //Assign the query using CommandText
                     cmd.CommandText = query;
                     //Assign the connection using Connection
-                    cmd.Connection = connection;
+                    cmd.Connection = SQL.connection;
 
                     //Execute query
                     var ret = cmd.ExecuteReader();
@@ -324,7 +308,7 @@ namespace GOOMBAServer
                     }
                     ret.Close();
                     Console.WriteLine("Done");
-                    connection.Close();
+                    SQL.connection.Close();
                     return vs;
                 }
             }
@@ -379,7 +363,7 @@ namespace GOOMBAServer
                     print(coolValueCollection1.Count);
                     SafeINSERT(query.Split(' ')[2], coolValueCollection1);
                     string[] strtoret = { };
-                    connection.Close();
+                    SQL.connection.Close();
                     return strtoret;
 
                 }
@@ -486,11 +470,9 @@ namespace GOOMBAServer
                                 ErrorHandler("\nGoomba says: Expecting 2 arguments after SPELLARRAY at line " + i + ". Code will not continue.");
                                 return;
                             }
-                            if (arrays2.Contains(commandline[1]))
+                            if (arrays2.Contains(commandline[1]) && IsNumeric(commandline[2]) && arrays[arrays2.IndexOf(commandline[1])].Count > int.Parse(commandline[2]))
                             {
-
-                                pageData += arrays[arrays2.IndexOf(commandline[1])][Convert.ToInt32(commandline[2])];
-
+                                pageData += arrays[arrays2.IndexOf(commandline[1])][int.Parse(commandline[2])];
                             }
                         }
                         // Function support
@@ -756,7 +738,7 @@ namespace GOOMBAServer
                                 pageData = "Goomba says: Expecting 4 arguments after CONNECT, not " + commandline.Length + " at line " + i + ". Code will not continue.";
                                 return;
                             }
-                            InitializeSQL(commandline[1], commandline[2], commandline[3], commandline[4]);
+                            SQL.InitializeSQL(commandline[1], commandline[2], commandline[3], commandline[4]);
                         }
                         else if (commandline[0] == "REMOVE:")
                         {
