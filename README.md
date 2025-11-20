@@ -21,7 +21,7 @@ It has been tested on:
 # Sorry for no updates, Development will now be continued. (2/4/2022)
 
 # Compiling GOOMBAServer
-Compiling GOOMBAServer is easy!
+Compiling GOOMBAServer is easy! *Also the development has continued!*
 
 You need the MySQL.Data NuGet package installed first.
 Go to Tools > NuGet Package Manager > Manage NuGet packages for solution.
