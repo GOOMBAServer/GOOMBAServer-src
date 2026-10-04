@@ -1,3 +1,5 @@
+# abandoned
+
 # GOOMBAServer
 GOOMBAServer - A Server-Side programming language for websites!
 
